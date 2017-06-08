@@ -26,7 +26,7 @@ logging基础:
 * Filter 日志过滤器，接口对象，在日志被 Handler 处理之前，起过滤作用
 * Handler 日志处理器，接口对象，决定日志的输出方式
 * Formatter 日志格式化转换器，接口对象，决定日志的输出格式
-![logging 原理](/Users/xiahaihu/Documents/private/logging 原理.png)
+![logging 原理](./logging-diagram.png)
 
 示例: 
 
