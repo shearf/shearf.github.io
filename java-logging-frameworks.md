@@ -617,11 +617,12 @@ spring MVC中的日志依赖于Commons-logging(JCL)，选择一个日志系统�
 1. spring mvc use log4j 2
 
 ```
-<dependencies>    <dependency>
-    	<groupId>org.springframework</groupId>
-    	<artifactId>spring-core</artifactId> <version>4.3.8.RELEASE</version>    </dependency>    <dependency>		<groupId>log4j</groupId>
-		<artifactId>log4j</artifactId>
-		<version>1.2.17</version>    </dependency></dependencies>
+<dependencies>    <dependency>		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-core</artifactId>
+		<version>2.6.2</version>    </dependency>    <dependency>
+	    <groupId>org.apache.logging.log4j</groupId>
+	    <artifactId>log4j-jcl</artifactId>
+	    <version>2.6.2</version>    </dependency></dependencies>
 ```
 2. spring mvc use slf4j with logback
 
