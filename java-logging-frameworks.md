@@ -1,6 +1,7 @@
-## Java日志系统
+# Java日志系统
 
-### 困惑
+## 困惑
+
 Java与日志相关包和库有 java.util.logging log4j1、log4j2、logback、commons-logging、slf4j、log4j-api、log4j-core、log4j-1.2-api、log4j-jcl、log4j-slf4j-impl、log4j-jul、logback-core、logback-classic、logback-access、slf4j-api、slf4j-log4j12、slf4j-simple、jcl-over-slf4j、slf4j-jdk14、log4j-over-slf4j、slf4j-jcl、log4j-to-slf4j
 
 1. 这些包都是干啥的？
@@ -9,14 +10,15 @@ Java与日志相关包和库有 java.util.logging log4j1、log4j2、logback、co
 4. log4j-over-slf4j，slf4j-jcl这些包名看起来跟两个系统有关系，那么关系是什么？为什么会有这些关系？
 5. log4j1和log4j2这种像同一套系统，为什么需要区分？
 
-### 日志系统
+## 日志系统
+
 现有日志系统实现方案有以下几种：
 
 1. Java原生日志系统：java.util.logging
 2. Apache开源日志系统：log4j(log4j1, log4j2)
 3. log4j创始人设计的有一个开源日志系统：Logback
 
-#### 原生日志 java.util.logging
+### 原生日志 java.util.logging
 
 logging基础:
 
@@ -26,11 +28,12 @@ logging基础:
 * Filter 日志过滤器，接口对象，在日志被 Handler 处理之前，起过滤作用
 * Handler 日志处理器，接口对象，决定日志的输出方式
 * Formatter 日志格式化转换器，接口对象，决定日志的输出格式
+
 ![logging 原理](./logging-diagram.png)
 
-示例: 
+示例:
 
-```
+```java
 import java.io.IOException;
 import java.util.logging.*;
 
@@ -83,8 +86,10 @@ public class LoggingTest {
             com.shearf.learn.logger.LoggingTest: a severe [SEVERE]      自定义日志格式
          */
     }
-}	
+}
+
 ```
+
 > https://segmentfault.com/a/1190000004227150
 
 #### log4j1
@@ -107,12 +112,11 @@ log4j有如下特点：
 * 日志输出的格式可以通过扩展Layout类容易地改变
 * 日志输出的目标，以及在写入策略可通过实现Appender程序接口改变，log4j会故障停止。然而，尽管它肯定努力确保传递，log4j不保证每个日志语句将被传递到目的地。
 
-*2015年8月停止更新*
-
+***2015年8月停止更新***
 
 maven依赖：
 
-```
+```java
 <dependency>
     <groupId>log4j</groupId>
     <artifactId>log4j</artifactId>
@@ -122,7 +126,7 @@ maven依赖：
 
 示例：
 
-```
+```java
 import org.apache.log4j.Logger;
 
 public class Log4jTest {
@@ -137,23 +141,26 @@ public class Log4jTest {
     }
 }
 ```
+
 配置：classpath: log4j.properties
 
-```
+```java
 log4j.rootLogger = warn, console
 log4j.appender.console = org.apache.log4j.ConsoleAppender
 log4j.appender.console.layout = org.apache.log4j.PatternLayout
 log4j.appender.console.layout.ConversionPattern = %-d{yyyy-MM-dd HH:mm:ss} [%t %p] %m%n
 
 ```
-#### log4j2
+
+### log4j2
+
 log4j2是log4j1.*的升级，同时不兼容；对比log4j在代码结构上对实现和接口进行了分离，性能上更优，支持更多的API等等特性。
 
 详见 [https://logging.apache.org/log4j/2.x/](https://logging.apache.org/log4j/2.x/)
 
 maven依赖：
 
-```
+```java
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-api</artifactId>
@@ -165,9 +172,10 @@ maven依赖：
     <version>2.2</version>
   </dependency>
 ```
+
 示例：
 
-```
+```java
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -181,9 +189,10 @@ public class Log4j2Test {
     }
 }
 ```
+
 配置：classpath:log4j2.xml
 
-```
+```java
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
@@ -197,11 +206,12 @@ public class Log4j2Test {
     </Loggers>
 </Configuration>
 ```
-**升级log4j到log4j2**
+
+***升级log4j到log4j2***
 
 项目使用log4j2作为日志系统，但是依赖的库文件还存在很多使用log4j的，不能对log4j的包进行修改替换成log4j2。使用log4j-1.2-api替换掉原来log4j，日志系统就切换到log4j2
 
-```
+```java
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-1.2-api</artifactId>
@@ -212,28 +222,28 @@ public class Log4j2Test {
 <!--    <artifactId>log4j</artifactId> -->
 <!-- </dependency> -->
 ```
-**使用log4j2代替jul**
+
+***使用log4j2代替jul***
 项目使用log4j2作为日志系统，但是依赖库文件使用java.util.logging(jul)，用log4j2替代原来的jui。需要进行如下操作：
 
 1. maven新增依赖
 
-	```
-	<dependency>
-	    <groupId>org.apache.logging.log4j</groupId>
-	    <artifactId>log4j-jul</artifactId>
-	</dependency>
-	```
-2. 	运行程序使用修改一下JVM参数: -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+```java
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-jul</artifactId>
+</dependency>
+```
 
+1. 运行程序使用修改一下JVM参数: -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
 
-#### Logback
+### Logback
 
 Logback是由log4j创始人设计的又一个开源日志组件，跟log4j非常相似，但是比log4j更优秀。[Reasons to prefer logback over log4j](https://logback.qos.ch/reasonsToSwitch.html)。
 
-
 maven依赖：
 
-```
+```java
 <dependency>
     <groupId>ch.qos.logback</groupId>
     <artifactId>logback-core</artifactId>
@@ -253,7 +263,7 @@ maven依赖：
 
 示例：
 
-```
+```java
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,6 +277,7 @@ public class LogbackTest {
     }
 }
 ```
+
 配置：
 
 ```
@@ -284,26 +295,28 @@ public class LogbackTest {
     </root>
 </configuration>
 ```
-**使用logback代替jul**
+
+***使用logback代替jul***
 
 logback使用slf4j-api接口来实现日志，jul需要先转化为slf4j，再通过logback来实现
 
 1. maven新增依赖
 
-	```
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>jul-to-slf4j</artifactId>
-	</dependency>
-	```
-2. 在代码中执行: 
+```java
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>jul-to-slf4j</artifactId>
+</dependency>
+```
 
-	```
-	static {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
-	```
+1. 在代码中执行:
+
+```java
+static {
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+}
+```
 
 #### Apache commons-logging - jcl
 
@@ -315,7 +328,7 @@ apache commons-logging 是一套统一的API，基于API进行日志编程，让
 
 示例：
 
-```
+```java
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -329,9 +342,10 @@ public class CommonLoggingTest {
     }
 }
 ```
+
 commons-logging with jul(java.util.logging)
 
-```
+```java
 <dependency>
     <groupId>commons-logging</groupId>
     <artifactId>commons-logging</artifactId>
@@ -340,10 +354,9 @@ commons-logging with jul(java.util.logging)
 <!-- 不依赖其他包，因为java.util.logging sdk自带 -->
 ```
 
-
 commons-logging with log4j
 
-```
+```java
 <dependency>
     <groupId>log4j</groupId>
     <artifactId>log4j</artifactId>
@@ -358,7 +371,7 @@ commons-logging with log4j
 
 commons-logging with log4j2
 
-```
+```java
 <dependency>
     <groupId>commons-logging</groupId>
     <artifactId>commons-logging</artifactId>
@@ -383,7 +396,7 @@ commons-logging with log4j2
 
 commons-logging with logback
 
-```
+```java
  <dependencies>
     <dependency>
         <groupId>ch.qos.logback</groupId>
@@ -406,15 +419,17 @@ commons-logging with logback
 
 使用common-logging作为日志的通用实现，lib中加载相应的日志系统依赖就可以了，common-logging会自动去库中寻找日志依赖包
 
-#### slf4j（Simple Logging Facade for Java）
+### slf4j（Simple Logging Facade for Java）
+
 java简单日志门面。 是对不同日志框架提供的一个门面封装。可以在部署的时候不修改任何配置即可接入一种日志实现方案
 
 与commons-logging的主要差异：commons-logging通过运行时动态查找决定采用哪种日志框架，slf4j是编译时绑定到具体的日志框架，性能上由于commons-logging
 
-##### 1. slf4j-api使用示例
+#### 1. slf4j-api使用示例
+
 maven
 
-```
+```java
 <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -422,8 +437,10 @@ maven
     </dependency>
 </dependencies>
 ```
+
 示例
-```
+
+```java
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -437,10 +454,11 @@ public class Slf4jTest {
 }
 ```
 
-##### 2. slf4j用jul实现
+#### 2. slf4j用jul实现
+
 maven
 
-```
+```java
 <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -453,10 +471,11 @@ maven
 </dependencies>
 ```
 
-##### 3. slf4j用log4j实现
+#### 3. slf4j用log4j实现
+
 maven
 
-```
+```java
 <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -468,10 +487,11 @@ maven
     </dependency>
 </dependencies>
 ```
-##### 4. slf4j用log4j 2 实现
+
+#### 4. slf4j用log4j 2 实现
 maven
 
-```
+```java
 <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -491,10 +511,12 @@ maven
     </dependency>
 </dependencies>
 ```
-##### 5. slf4j用logback实现（logback使用slf4j原生接口）
+
+#### 5. slf4j用logback实现（logback使用slf4j原生接口）
+
 maven
 
-```	
+```java
 <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -512,12 +534,13 @@ maven
 
 ```
 
-##### 6. commons-logging, log4j, log4j 2, jul 切换成slf4j接口，并用logback实现，不修改原有日志接口
+#### 6. commons-logging, log4j, log4j 2, jul 切换成slf4j接口，并用logback实现，不修改原有日志接口
+
 maven
 
-```
+```java
 <dependencies>
-	<dependency>
+    <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -564,9 +587,10 @@ maven
 
 > 备注：由于jul的日志level与slf4j接口定义的level不一致，用slf4j接口来接管jul需要执行：SLF4JBridgeHandler.install()
 
-### 总结解惑
+## 总结解惑
 
-#### 1. 这些包都是干啥的
+### 1. 这些包都是干啥的
+
 * java.util.logging java原生日志系统包
 * log4j log4j版本1的日志系统
 * log4j2 log4j版本2的日志系统
@@ -591,7 +615,8 @@ maven
 * log4j-over-slf4j log4j转交给slf4j接口
 * slf4j-jcl slf4j接口转交给commons-logging接口来做实现
 
-#### 2. 记录日志需要使用那些包
+### 2. 记录日志需要使用那些包
+
 根据自己的需求来选择日志系统
 
 1. 先选择日志接口，slf4j or commons-logging?
@@ -604,58 +629,82 @@ maven
 * log4j-over-slf4j 与 slf4j-log4j12
 * jul-to-slf4j 与 slf4j-jdk14
 
-#### 3. 有些包应该是属于同一个系统，为什么要拆分那么包，如logback-core、logback-classic、logback-access？
+### 3. 有些包应该是属于同一个系统，为什么要拆分那么包，如logback-core、logback-classic、logback-access？
+
 日志系统内，各个包的作用不同，做了合理的业务拆分，可以根据具体业务需求加载，更合理。详见各个包的作用说明
-#### 4. log4j-over-slf4j，slf4j-jcl这些包名看起来跟两个系统有关系，那么关系是什么？为什么会有这些关系？
+
+### 4. log4j-over-slf4j，slf4j-jcl这些包名看起来跟两个系统有关系，那么关系是什么？为什么会有这些关系？
+
 因为一个程序或者系统依赖的lib中各个库都有自己的日志系统实现，可能才log4j，jul，并采用不同的日志统一接口，commons-log或slf4j。程序或者系统选择或需要采用slf4j+logback，在不改动lib库依赖的包代码的前提下，通过log4j-over-slf4j这样的包，来将lib库中日志系统委托给slf4j+logback实现。
+
 #### 5. log4j1和log4j2这种像同一套系统，为什么需要区分？
+
 log4j 2是对log4j的升级，log4j已经停止维护。
 
 ### spring MVC中日志框架的应用
+
 spring MVC中的日志依赖于Commons-logging(JCL)，选择一个日志系统去实现jcl接口就可以了
 
 1. spring mvc use log4j 2
 
+```java
+<dependencies>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.6.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jcl</artifactId>
+        <version>2.6.2</version>
+    </dependency>
+</dependencies>
 ```
-<dependencies>    <dependency>		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-core</artifactId>
-		<version>2.6.2</version>    </dependency>    <dependency>
-	    <groupId>org.apache.logging.log4j</groupId>
-	    <artifactId>log4j-jcl</artifactId>
-	    <version>2.6.2</version>    </dependency></dependencies>
-```
-2. spring mvc use slf4j with logback
+
+1. spring mvc use slf4j with logback
 
 spring代码包中排除对commons-logging的依赖，在选择slf4j需要的包
 
-```
-<dependencies>    <dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-core</artifactId>
-	    <version>4.3.8.RELEASE</version>
-	    <exclusions>
-	    	<exclusion>
-	    		<groupId>commons-logging</groupId>
-	    		<artifactId>commons-logging</artifactId>      		</exclusion>    	</exclusions>    </dependency>
+```java
+<dependencies>
     <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>jcl-over-slf4j</artifactId>
-    	<version>1.7.21</version>
-    	<scope>runtime</scope>    </dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>4.3.8.RELEASE</version>
+        <exclusions>
+            <exclusion>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
     <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>jcl-over-slf4j</artifactId>
-    	<version>1.7.21</version>    </dependency>    <dependency>
-    	<groupId>ch.qos.logback</groupId>
-    	<artifactId>logback-classic</artifactId>
-    	<version>1.1.7</version>    </dependency></dependencies>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>1.7.21</version>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>1.7.21</version>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.1.7</version>
+    </dependency>
+</dependencies>
 ```
-### spring boot中日志框架的应用
+
+## spring boot中日志框架的应用
+
 spring boot 用JCL作为日志接口，开放底层实现，默认支持JUL，Log4j2和Logback；如果用Starters包，那么底层实现用的是logback。
 
 1. 使用springboot自带的日志配置来实现日志配置
 
-```
+```java
  logging.level.root=WARN
  logging.level.org.springframework.web=DEBUG
  logging.level.org.hibernate=ERROR
@@ -664,30 +713,42 @@ spring boot 用JCL作为日志接口，开放底层实现，默认支持JUL，Lo
  logging.pattern.console=${CONSOLE_LOG_PATTERN}
  ...
 ```
+
 > 详情参见: [spring boot reference logging](http://docs.spring.io/spring-boot/docs/1.5.4.RELEASE/reference/htmlsingle/#boot-features-logging)
 
-2. 使用logback的配置文件来做日志配置
+1. 使用logback的配置文件来做日志配置
 
 spring boot支持logback-spring.xml, logback-spring.groovy, logback.xml or logback.groovy来做日志配置，推荐使用-spring后缀的配置文件来作为spring boot中的logback配置使用，否则不一定能完全控制日志的初始化，Spring boot包含了很多logback的扩展，如果使用logback.xml或logback.groovy的配置，那么扩展将无法生效。
 
-**logback.xml或logback.groovy的优先级高于logback-spring.xml,logback-spring.groovy，两者共存使用优先级高的配置文件**
+***logback.xml或logback.groovy的优先级高于logback-spring.xml,logback-spring.groovy，两者共存使用优先级高的配置文件***
+
 > 详见: [boot-features-custom-log-configuration](http://docs.spring.io/spring-boot/docs/1.5.4.RELEASE/reference/htmlsingle/#boot-features-custom-log-configuration)
 
-3. 使用log4j2来做日志实现
+1. 使用log4j2来做日志实现
+
 如果是用starters的前提下，需要排除Logback然后加入log2j 2的依赖；如果不用starters的包，那么使用jcl-over-slf4j。
 
-```
+```java
 <dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter-web</artifactId></dependency><dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter</artifactId>
-	<exclusions>		<exclusion>			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-logging</artifactId>        </exclusion>    </exclusions></dependency><dependency>	<groupId>org.springframework.boot</groupId>	<artifactId>spring-boot-starter-log4j2</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-log4j2</artifactId>
 </dependency>
 ```
-**跟Logback的配置一样，springboot推荐使用log4j-spring.xml来自定义配置log4j2；优先级还是log4j.xml高**
+
+***跟Logback的配置一样，springboot推荐使用log4j-spring.xml来自定义配置log4j2；优先级还是log4j.xml高***
+
 ### 集成日志服务
-
-
-
